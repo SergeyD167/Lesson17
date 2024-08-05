@@ -1,0 +1,3 @@
+[submodule "Lesson17/Modules/FruitsAPI"]
+	path = Lesson17/Modules/FruitsAPI
+	url = git@github.com:SergeyD167/FruityAPI.git
