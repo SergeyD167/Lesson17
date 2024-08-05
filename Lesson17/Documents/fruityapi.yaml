@@ -1,0 +1,286 @@
+openapi: 3.0.0
+servers:
+  # Added by API Auto Mocking Plugin
+  - description: SwaggerHub API Auto Mocking
+    url: https://virtserver.swaggerhub.com/MANSUYDIANE/Fruityvice/1.0.0
+  - url: https://www.fruityvice.com/api/
+
+info:
+  description: A powerful webservice which provides data for all kinds of fruit !
+  version: "1.0.0"
+  title: Fruityvice
+  license:
+    name: Original page
+    url: 'https://www.fruityvice.com'
+tags:
+  - name: Get all
+    description: Request all Fruits
+  - name: Nutrition
+    description: Fruits information by nutrition value
+  - name: Found by type
+    description: Request Fruits by type (family, genus, order)
+  - name: Add a Fruit
+  
+paths:
+  /fruit/all:
+    get:
+      tags:
+        - Get all
+      summary: Get all Fruits available in the database in a list form.
+      description: will return a list containing all the fruits present in the BDD.
+      operationId: getAllFruits
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fruits'
+        '500':
+          description: There occured an error in the server.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/InternalServerError'
+  /fruit/{nutrition}:
+    get:
+      tags:
+        - Nutrition
+      summary: Request Fruits information by nutrition value
+      operationId: findFruitByNutrition
+      description: Get Fruits with given nutrition between min and max parameter. At least one query parameter has to be given.
+      parameters:
+        - name: nutrition
+          in: path
+          description: Nutritions of the Fruit.
+          required: true
+          schema:
+            type: string
+            default: null
+            example: protein
+        - name: min
+          in: query
+          description: Optional minimum nutrition value
+          required: true
+          schema:
+            type: number
+            minimum: 0
+            default: 0
+        - name: max
+          in: query
+          description: Optional maximum nutrition value
+          required: true
+          schema:
+            type: number
+            minimum: 0
+            default: 1
+          
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fruits'
+        '404':
+          description: There was no fruit available with the given parameters.
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotFound'
+                  
+  /fruit/family/{family}:
+    get:
+      tags:
+        - Found by type
+      summary: Request fruits with given family
+      description: Get all Fruits available in the database in a list form which belong to a given family.
+      operationId: getFruitsByFamily
+      parameters:
+        - name: family
+          in: path
+          description: Family of the Fruit.
+          required: true
+          schema:
+            type: string
+            default: null
+            example: Rosaceae
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fruits'
+        '404':
+          description: There was no fruit found with the given family
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotFound'
+                  
+  /fruit/genus/{genus}:
+    get:
+      tags:
+        - Found by type
+      summary: Request fruits with given genus
+      description: Get all Fruits available in the database in a list form which belong to a given genus.
+      operationId: getFruitsByGenus
+      parameters:
+        - name: genus
+          in: path
+          description: Genus of the Fruit.
+          required: true
+          schema:
+            type: string
+            default: null
+            example: Malus
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fruits'
+        '404':
+          description: There was no fruit found with the given family
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotFound'
+  
+  /fruit/order/{order}:
+    get:
+      tags:
+        - Found by type
+      summary: Request fruits with given order
+      description: Get all Fruits available in the database in a list form which belong to a given order.
+      operationId: getFruitsByOrder
+      parameters:
+        - name: order
+          in: path
+          description: Order of the Fruit.
+          required: true
+          schema:
+            type: string
+            default: null
+            example: Rosales
+      responses:
+        '200':
+          description: Ok
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Fruits'
+        '404':
+          description: There was no fruit found with the given family
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/NotFound'
+  /fruit:
+    put:
+      tags:
+        - Add a Fruit
+      summary: Add a fruit to the database
+      description: Add a new fruit to the database
+      operationId: addFruit
+      responses:
+        '417':
+          description: The given JSON could not be processed
+        '422':
+          description: Body is missing
+        '400':
+          description: The fruit either already existed or was missing an object key
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Fruits'
+        description: Add new fruit
+        required: true
+components:
+  schemas:
+    Fruits:
+      type: object
+      required:
+        - genus
+        - name
+        - id
+        - family
+      properties:
+        genus:
+          type: string
+          example: Malus
+          description: Genus of the Fruit.
+        name:
+          type: string
+          example: Apple
+          description: Name of the Fruit.
+        id:
+          type: integer
+          example: 6
+          description: ID of the Fruit.
+        family:
+          type: string
+          example: Rosaceae
+          description: Family of the Fruit.
+        order:
+          type: string
+          example: Rosales
+          description: Order of the Fruit.
+        nutritions:
+          $ref: '#/components/schemas/Nutritions'
+    Nutritions:
+      properties:
+        carbohydrates:
+          type: number
+          example: 11.4
+          description: Carbohydrates of the Fruit (per 100g) in gramm.
+        protein:
+          type: number
+          example: 0.3
+          description: Protein of the Fruit (per 100g) in gramm.
+        fat:
+          type: number
+          example: 0.4
+          description: Fat of the Fruit (per 100g) in gramm.
+        calories:
+          type: number
+          example: 53
+          description: Calories of the Fruit (per 100g) in gramm.
+        sugar:
+          type: number
+          example: 10.3
+          description: Sugar of the Fruit (per 100g) in gramm.
+    InternalServerError:
+      properties:
+        error:
+          type: string
+          example: There occured an error in the server.
+          
+    NotFound:
+      properties:
+        error:
+          type: string
+          example: Not found.
